@@ -67,48 +67,7 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavHostController){
     val context = LocalContext.current
     val auth = Firebase.auth
 
-    fun getGoogleSignInClient(context: Context): GoogleSignInClient {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-
-        return GoogleSignIn.getClient(context, gso)
-    }
-
-    // Fungsi untuk melakukan Firebase autentikasi dengan Google ID Token
-    fun firebaseAuthWithGoogle(idToken: String, navController: NavHostController, auth: FirebaseAuth, context: Context) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    navController.navigate("home")
-                } else {
-                    Toast.makeText(context, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    // ActivityResult API untuk mendapatkan hasil dari Google Sign-In
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                firebaseAuthWithGoogle(account.idToken!!, navController, auth, context)
-            } catch (e: ApiException) {
-                Toast.makeText(context, "Google sign-in failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            Toast.makeText(context, "Sign-in canceled", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
-
-
+    val googleSignInLauncher = rememberGoogleSignInLauncher(auth, navController)
 
     Column (
         modifier
@@ -240,24 +199,15 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavHostController){
                         onClick = {
                             val googleSignInClient = getGoogleSignInClient(context)
                             val signInIntent = googleSignInClient.signInIntent
-                            launcher.launch(signInIntent)
+                            googleSignInLauncher.launch(signInIntent)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(horizontal = 45.dp)
                             .height(50.dp)
-                    ) {
+                    ) { }
 
-                    }
-//                    Button(
-//                        onClick = { Toast.makeText(context, "Google button clicked!", Toast.LENGTH_SHORT).show()},
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-//                        shape = CircleShape,
-//                        modifier = Modifier.size(50.dp)
-//                    ) {
-//
-//                    }
                     Icon(
                         painter = painterResource(id = R.drawable.g),
                         contentDescription = null,
@@ -267,42 +217,6 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavHostController){
                             .align(Alignment.Center)
                     )
                 }
-//                Box {
-//                    Button(
-//                        onClick = { Toast.makeText(context, "Facebook button clicked!", Toast.LENGTH_SHORT).show() },
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-//                        shape = CircleShape,
-//                        modifier = Modifier.size(50.dp)
-//                    ) {
-//
-//                    }
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.f),
-//                        contentDescription = null,
-//                        tint = Color.Unspecified,
-//                        modifier = Modifier
-//                            .size(25.dp)
-//                            .align(Alignment.Center)
-//                    )
-//                }
-//                Box {
-//                    Button(
-//                        onClick = { Toast.makeText(context, "Twitter button clicked!", Toast.LENGTH_SHORT).show() },
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-//                        shape = CircleShape,
-//                        modifier = Modifier.size(50.dp)
-//                    ) {
-//
-//                    }
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.t),
-//                        contentDescription = null,
-//                        tint = Color.Unspecified,
-//                        modifier = Modifier
-//                            .size(25.dp)
-//                            .align(Alignment.Center)
-//                    )
-//                }
             }
             val annotatedText = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.White)){

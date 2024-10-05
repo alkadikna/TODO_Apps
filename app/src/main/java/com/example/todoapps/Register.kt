@@ -55,6 +55,11 @@ private lateinit var auth: FirebaseAuth;
 
 @Composable
 fun RegisterPage(modifier: Modifier = Modifier, navController: NavHostController){
+    val context = LocalContext.current
+    val auth = Firebase.auth
+
+    val googleSignInLauncher = rememberGoogleSignInLauncher(auth, navController)
+
     Column (
         modifier
             .fillMaxSize()
@@ -63,7 +68,7 @@ fun RegisterPage(modifier: Modifier = Modifier, navController: NavHostController
         horizontalAlignment = Alignment.CenterHorizontally,
 
         ){
-        val context = LocalContext.current
+
 
         Image(
             painter = painterResource(id = R.drawable.guruji),
@@ -164,7 +169,6 @@ fun RegisterPage(modifier: Modifier = Modifier, navController: NavHostController
         Button(onClick = {
             if (textEmail.isNotEmpty() && textPass.isNotEmpty() && textPassRepeat.isNotEmpty()) {
                 if (textPass == textPassRepeat) {
-                    auth = Firebase.auth
                     auth.createUserWithEmailAndPassword(textEmail, textPass)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
@@ -196,15 +200,7 @@ fun RegisterPage(modifier: Modifier = Modifier, navController: NavHostController
             )
         }
 
-        Spacer(modifier = modifier.size(15.dp))
-
-//        TextButton(onClick = { Toast.makeText(context, "Forgot Password Button Clicked !", Toast.LENGTH_SHORT).show() }, modifier = modifier
-//            .align(Alignment.End)
-//            .padding(end = 35.dp)) {
-//            Text(text = "Forgot Password?", color = Color(0xFFFD8C00))
-//        }
-
-        Spacer(modifier = modifier.size(30.dp))
+        Spacer(modifier = modifier.size(45.dp))
 
         Column (verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -216,24 +212,17 @@ fun RegisterPage(modifier: Modifier = Modifier, navController: NavHostController
 
                     Button(
                         onClick = {
+                            val googleSignInClient = getGoogleSignInClient(context)
+                            val signInIntent = googleSignInClient.signInIntent
+                            googleSignInLauncher.launch(signInIntent)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(horizontal = 45.dp)
                             .height(50.dp)
-                    ) {
+                    ) { }
 
-                    }
-
-//                    Button(
-//                        onClick = { Toast.makeText(context, "Google button clicked!", Toast.LENGTH_SHORT).show()},
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-//                        shape = CircleShape,
-//                        modifier = Modifier.size(50.dp)
-//                    ) {
-//
-//                    }
                     Icon(
                         painter = painterResource(id = R.drawable.g),
                         contentDescription = null,
@@ -241,38 +230,6 @@ fun RegisterPage(modifier: Modifier = Modifier, navController: NavHostController
                         modifier = Modifier.size(25.dp).align(Alignment.Center)
                     )
                 }
-//                Box {
-//                    Button(
-//                        onClick = { Toast.makeText(context, "Facebook button clicked!", Toast.LENGTH_SHORT).show() },
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-//                        shape = CircleShape,
-//                        modifier = Modifier.size(50.dp)
-//                    ) {
-//
-//                    }
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.f),
-//                        contentDescription = null,
-//                        tint = Color.Unspecified,
-//                        modifier = Modifier.size(25.dp).align(Alignment.Center)
-//                    )
-//                }
-//                Box {
-//                    Button(
-//                        onClick = { Toast.makeText(context, "Twitter button clicked!", Toast.LENGTH_SHORT).show() },
-//                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-//                        shape = CircleShape,
-//                        modifier = Modifier.size(50.dp)
-//                    ) {
-//
-//                    }
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.t),
-//                        contentDescription = null,
-//                        tint = Color.Unspecified,
-//                        modifier = Modifier.size(25.dp).align(Alignment.Center)
-//                    )
-//                }
             }
             val annotatedText = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.White)){

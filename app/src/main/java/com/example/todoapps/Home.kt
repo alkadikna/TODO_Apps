@@ -211,8 +211,19 @@ fun TodoApp(modifier: Modifier = Modifier, navController: NavHostController) {
             )
 
             Button(onClick = {
-                Firebase.auth.signOut()
-                navController.navigate("login")
+                // Firebase Sign-Out
+                auth.signOut()
+
+                // Google Sign-Out
+                val googleSignInClient = getGoogleSignInClient(context)
+                googleSignInClient.signOut().addOnCompleteListener {
+                    navController.navigate("login") {
+                        // Menghapus back stack sehingga pengguna tidak bisa kembali ke Home setelah logout
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
+                }
             },
                 modifier = Modifier
                     .fillMaxWidth()
